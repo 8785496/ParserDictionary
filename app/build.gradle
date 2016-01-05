@@ -21,7 +21,7 @@ model {
      * native build settings
      */
     android.ndk {
-        moduleName = "balda"
+        moduleName = "parser"
         ldLibs = ["android", "log"]
         stl = "stlport_static"
         /*
