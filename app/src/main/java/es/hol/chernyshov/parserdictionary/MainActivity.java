@@ -27,61 +27,52 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        Log.d("Parser", Environment.getExternalStorageDirectory().getAbsolutePath());
-        String dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+        String dir = Environment.getExternalStorageDirectory().getAbsolutePath();
         Log.d("Parser", dir);
-
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            Log.d("Parser", "true");
-        }
-
-        String filename = "myfile";
-        String string = "Hello world!";
-        FileOutputStream outputStream;
+        String filename = "data_en.bin";
 
         try {
             File myFile = new File(dir, filename);
-            if (!myFile.mkdirs()) {
-                Log.e("Parser", "Directory not created");
+            if (!myFile.delete()) {
+                Log.e("Parser", "File not deleted");
             }
-//            outputStream = new FileOutputStream(myFile);
-//            outputStream.write(string.getBytes());
-//            outputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        AssetManager assetManager = getResources().getAssets();
+        try {
+            InputStreamReader inputStreamReader = new InputStreamReader(assetManager.open("aemuller.txt"), "cp1251");
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            Pattern p = Pattern.compile("^\\s\\s\\s([a-z]+)\\s(1\\.\\s)?noun.*");
+            String line;
 
-//        AssetManager assetManager = getResources().getAssets();
-//        try {
-//            InputStreamReader inputStreamReader = new InputStreamReader(assetManager.open("aemuller.txt"), "cp1251");
-//            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-//            Pattern p = Pattern.compile("^\\s\\s\\s([a-z]+)\\s(1\\.\\s)?noun.*");
-//            String line;
-//
-//            while ((line = bufferedReader.readLine()) != null) {
-//                //dictionary.put(word, 0);
-//                Matcher m = p.matcher(line);
-//                if (m.matches()) {
-//                    words.add(m.group(1));
-//                }
-//            }
-//
-//            for (int i = 0; i < 10; i++) {
-//                Log.d("Parser", words.get(i));
-//            }
-//
-//            bufferedReader.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+            int j = 0;
+            while ((line = bufferedReader.readLine()) != null) {
+
+                Matcher m = p.matcher(line);
+                if (m.matches()) {
+                    words.add(m.group(1));
+                }
+
+                j++;
+
+                if ((j % 1000) == 0) {
+                    System.gc();
+                }
+            }
+
+            for (int i = 0; i < 10; i++) {
+                Log.d("Parser", words.get(i));
+            }
+
+            bufferedReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void save(View view) {
-//        for (int i = 0; i < 10; i++) {
-//            System.out.println(words.get(i));
-//        }
         ArrayList<Long> dictionary = new ArrayList<>();
         ArrayList<Long> dic2_more = new ArrayList<>();
         ArrayList<Long> dic3_more = new ArrayList<>();
@@ -91,6 +82,7 @@ public class MainActivity extends Activity {
         ArrayList<Long> dic7_more = new ArrayList<>();
         ArrayList<Long> dic8_more = new ArrayList<>();
         ArrayList<Long> dic9_more = new ArrayList<>();
+        ArrayList<Long> dictionary_5 = new ArrayList<>();
 
         int n = 10;
         for (int i = 0; i < words.size(); i++) {
@@ -149,6 +141,10 @@ public class MainActivity extends Activity {
                     if (dic9_more.size() == 0 || dic9_more.get(dic9_more.size() - 1) != hash)
                         dic9_more.add(hash);
                 }
+
+                // хэшируем слова из 5 букв
+                if (len == 5)
+                    dictionary_5.add(str2hash(word));
             }
         }
 
@@ -161,14 +157,14 @@ public class MainActivity extends Activity {
         long[] long_dic7_more = listToSortArray(dic7_more);
         long[] long_dic8_more = listToSortArray(dic8_more);
         long[] long_dic9_more = listToSortArray(dic9_more);
+        long[] long_dictionary_5 = listToSortArray(dictionary_5);
 
-//        Parser.hello();
         Parser.saveData(
                 long_dictionary, long_dic2_more,
                 long_dic3_more, long_dic4_more,
                 long_dic5_more, long_dic6_more,
                 long_dic7_more, long_dic8_more,
-                long_dic9_more, long_dic9_more
+                long_dic9_more, long_dictionary_5
         );
     }
 

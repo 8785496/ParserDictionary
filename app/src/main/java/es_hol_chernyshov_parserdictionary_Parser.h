@@ -9,14 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     es_hol_chernyshov_parserdictionary_Parser
- * Method:    hello
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_es_hol_chernyshov_parserdictionary_Parser_hello
-  (JNIEnv *, jclass);
-
-/*
- * Class:     es_hol_chernyshov_parserdictionary_Parser
  * Method:    saveData
  * Signature: ([J[J[J[J[J[J[J[J[J[J)V
  */
