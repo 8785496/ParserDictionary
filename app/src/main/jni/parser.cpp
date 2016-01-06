@@ -24,7 +24,7 @@ void Java_es_hol_chernyshov_parserdictionary_Parser_saveData (
     jlongArray _dictionary_5
 )
 {
-    FILE * f = fopen("/mnt/sdcard/data_en.bin", "wb");
+    FILE * f = fopen("/mnt/sdcard/data.bin", "wb");
 
     if (f != NULL) {
         __android_log_write(ANDROID_LOG_DEBUG, "Parser", "File open");

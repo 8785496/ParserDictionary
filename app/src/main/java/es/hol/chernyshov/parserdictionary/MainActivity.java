@@ -20,13 +20,69 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends Activity {
     private static final ArrayList<String> words = new ArrayList<>();
-    private static final String chars = " abcdefghijklmnopqrstuvwxyz";
+    private static String chars;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    }
 
+    private void parserRussian() {
+        String dir = Environment.getExternalStorageDirectory().getAbsolutePath();
+        Log.d("Parser", dir);
+        String filename = "data.bin";
+
+        try {
+            File myFile = new File(dir, filename);
+            if (!myFile.delete()) {
+                Log.e("Parser", "File not deleted");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        AssetManager assetManager = getResources().getAssets();
+        try {
+            InputStreamReader inputStreamReader = new InputStreamReader(assetManager.open("efremova.txt"), "cp1251");
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            Pattern p = Pattern.compile("^\\s(1\\.\\s)?(м|ж|ср)\\..*$");
+            Pattern p2 = Pattern.compile("^[а-я]+");
+            Pattern p3 = Pattern.compile("^\\sI.*");
+            String line;
+            String prevLine = "";
+            String prevPrevLine = "";
+            int j = 0;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (p.matcher(line).matches()) {
+                    if (p2.matcher(prevLine).matches()) {
+                        words.add(prevLine);
+                    } else if (p3.matcher(prevLine).matches()) {
+                        if (p2.matcher(prevPrevLine).matches()) {
+                            words.add(prevPrevLine);
+                        }
+                    }
+                }
+                prevPrevLine = prevLine;
+                prevLine = line;
+
+                j++;
+                if ((j % 10000) == 0) {
+                    System.gc();
+                }
+            }
+
+            for (int i = 0; i < 10; i++) {
+                Log.d("Parser", words.get(i));
+            }
+
+            bufferedReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void parserEnglish() {
         String dir = Environment.getExternalStorageDirectory().getAbsolutePath();
         Log.d("Parser", dir);
         String filename = "data_en.bin";
@@ -72,7 +128,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void save(View view) {
+    public void save() {
         ArrayList<Long> dictionary = new ArrayList<>();
         ArrayList<Long> dic2_more = new ArrayList<>();
         ArrayList<Long> dic3_more = new ArrayList<>();
@@ -185,5 +241,17 @@ public class MainActivity extends Activity {
             id += (chars.indexOf(sym) + 0) * Math.pow(33, i);
         }
         return id;
+    }
+
+    public void saveEnglish(View view) {
+        chars = " abcdefghijklmnopqrstuvwxyz";
+        parserEnglish();
+        save();
+    }
+
+    public void saveRussian(View view) {
+        chars = " абвгдежзийклмнопрстуфхцчшщъыьэюя";
+        parserRussian();
+        save();
     }
 }
